@@ -10,7 +10,7 @@
 <body class="bg-gray-100 min-h-screen flex flex-col justify-center items-center p-4">
   <div class="bg-white rounded-xl shadow-lg p-6 max-w-xl w-full border border-gray-200">
     <h1 class="text-2xl font-bold text-gray-800 mb-2 text-center">PDF Header Stamper</h1>
-    <p class="text-sm text-gray-500 text-center mb-6">Add enrollment number <span class="font-semibold text-black">240761305061</span> to the top of every page of <span class="font-semibold">mad_ass.PDF</span></p>
+    <p class="text-sm text-gray-500 text-center mb-6">Add <span id="textPreview" class="font-semibold text-black">the text you enter</span> to the top of every page of <span id="pdfNamePreview" class="font-semibold">your selected PDF</span></p>
 
     <!-- File Input -->
     <div class="mb-4">
@@ -22,7 +22,7 @@
     <div class="grid grid-cols-2 gap-4 mb-4">
       <div>
         <label class="block text-sm font-medium text-gray-700 mb-1">Text to Insert</label>
-        <input type="text" id="headerText" value="240761305061" class="w-full border rounded-lg p-2 text-sm font-mono focus:ring-2 focus:ring-blue-500 focus:outline-none">
+        <input type="text" id="headerText" placeholder="Enter text to insert" class="w-full border rounded-lg p-2 text-sm font-mono focus:ring-2 focus:ring-blue-500 focus:outline-none">
       </div>
       <div>
         <label class="block text-sm font-medium text-gray-700 mb-1">Position</label>
@@ -51,16 +51,38 @@
   </div>
 
   <script>
+    const headerTextInput = document.getElementById('headerText');
+    const textPreview = document.getElementById('textPreview');
+    const pdfFileInput = document.getElementById('pdfFileInput');
+    const pdfNamePreview = document.getElementById('pdfNamePreview');
+
+    headerTextInput.addEventListener('input', () => {
+      const value = headerTextInput.value.trim();
+      textPreview.textContent = value || 'the text you enter';
+    });
+
+    pdfFileInput.addEventListener('change', () => {
+      const file = pdfFileInput.files[0];
+      pdfNamePreview.textContent = file ? file.name : 'your selected PDF';
+    });
+
     async function processPDF() {
       const fileInput = document.getElementById('pdfFileInput');
       const status = document.getElementById('statusMessage');
-      const text = document.getElementById('headerText').value;
+      const text = document.getElementById('headerText').value.trim();
       const position = document.getElementById('textPosition').value;
       const fontSize = parseFloat(document.getElementById('fontSize').value) || 14;
       const topMargin = parseFloat(document.getElementById('topMargin').value) || 25;
 
       if (!fileInput.files.length) {
         status.textContent = 'Please select a PDF file first.';
+        status.className = 'mt-4 text-center text-sm font-medium text-red-600';
+        status.classList.remove('hidden');
+        return;
+      }
+
+      if (!text) {
+        status.textContent = 'Please enter text to insert first.';
         status.className = 'mt-4 text-center text-sm font-medium text-red-600';
         status.classList.remove('hidden');
         return;
